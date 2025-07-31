@@ -1,0 +1,47 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Environment and authentication
+.env
+.env.bak
+.cake_token
+*.token
+
+# Test files
+test_*.py
+browser_auth.py
+use_manual_token.py
+
+# Output
+output/
+results/
+*.log
+
+# Promptfoo local data
+.promptfoo/
+promptfoo.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Temporary files
+*.tmp
+*.bak
+.cache/
+
+.env
+!.env.example
+!.env.local*

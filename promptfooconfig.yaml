@@ -1,0 +1,136 @@
+# DSPy + Promptfoo Integration Configuration
+# This demonstrates how to use DSPy's programmatic prompt optimization with Promptfoo's evaluation framework
+
+# Default test configuration
+defaultTest:
+  options:
+    provider:
+      id: openai:gpt-4o-mini
+      config:
+        temperature: 0
+
+# Providers - including our custom DSPy provider
+providers:
+  # Standard OpenAI provider for comparison
+  - id: openai:gpt-4o-mini
+    label: "OpenAI Direct"
+    config:
+      temperature: 0
+  
+  # DSPy provider with basic Predict module
+  - id: file://promptfoo_wrapper.py
+    label: "DSPy Predict"
+    config:
+      module_type: "predict"
+      signature: "document_text -> summary"
+      debug: false
+      #pythonExecutable: /opt/conda/bin/python
+  
+  # DSPy provider with Chain of Thought
+  - id: file://promptfoo_wrapper.py
+    label: "DSPy CoT"
+    config:
+      module_type: "chain_of_thought"
+      signature: "document_text -> summary"
+      debug: false
+      #pythonExecutable: /opt/conda/bin/python
+  
+  # DSPy provider with optimization
+  - id: file://promptfoo_wrapper.py
+    label: "DSPy Optimized"
+    config:
+      module_type: "chain_of_thought"
+      signature: "document_text -> summary"
+      #pythonExecutable: /opt/conda/bin/python
+      optimize: true
+      optimizer: "BootstrapFewShot"
+
+# Prompts to test
+description: 'EDGAR Extraction with DSPy Modules Evaluation'
+
+prompts:
+  - "Extract structured information from the following EDGAR document: {{document_text}}"
+  
+# Test cases
+tests:
+  - vars:
+      document_text: |
+        ITEM 1. BUSINESS
+
+        Apple Inc. ("Apple" or the "Company") designs, manufactures and markets smartphones, personal computers, tablets, wearables and accessories worldwide. The Company sells and delivers digital content and applications through the iTunes Store, App Store, Mac App Store, TV App Store, Book Store and Apple Music (collectively "Digital Content and Services").
+
+        For the fiscal year ended September 30, 2023, total net sales were $383.3 billion, compared to $394.3 billion for fiscal 2022. iPhone represented the largest portion of total net sales at 52% in fiscal 2023.
+
+        The Company's fiscal year is the 52 or 53-week period that ends on the last Saturday of September. Fiscal 2023 spanned 52 weeks and ended on September 30, 2023. Fiscal 2022 spanned 52 weeks and ended on September 24, 2022.
+    assert:
+      - type: contains
+        value: Apple Inc.
+      - type: contains
+        value: $383.3 billion
+      - type: contains
+        value: September 30, 2023
+
+  - vars:
+      document_text: |
+        CONSOLIDATED STATEMENTS OF OPERATIONS
+        (In millions, except per share amounts)
+
+                                            Year Ended December 31,
+                                            2023        2022        2021
+        Revenues:
+          Product revenue                   $45,678     $42,134     $38,901
+          Service revenue                   $12,456     $11,789     $10,234
+          Total revenues                    $58,134     $53,923     $49,135
+
+        Cost of revenues:
+          Cost of product revenue           $28,901     $26,445     $24,123
+          Cost of service revenue           $3,456      $3,201      $2,987
+          Total cost of revenues            $32,357     $29,646     $27,110
+
+        Gross profit                        $25,777     $24,277     $22,025
+
+        Operating expenses:
+          Research and development          $8,901      $8,234      $7,567
+          Sales and marketing               $4,567      $4,123      $3,890
+          General and administrative        $2,345      $2,187      $2,034
+          Total operating expenses          $15,813     $14,544     $13,491
+
+        Operating income                    $9,964      $9,733      $8,534
+    assert:
+      - type: contains
+        value: $58,134
+      - type: contains
+        value: $25,777
+      - type: contains
+        value: $9,964
+
+  - vars:
+      document_text: |
+        RISK FACTORS
+
+        Our business is subject to numerous risks and uncertainties, including those highlighted below:
+
+        • Market Competition: We face intense competition in all of our markets. Our competitors may have greater financial, technical, marketing, or other resources than we do.
+
+        • Supply Chain Disruptions: Global supply chain disruptions, including those caused by the COVID-19 pandemic, geopolitical tensions, and natural disasters, could materially impact our operations.
+
+        • Cybersecurity Threats: We are subject to cybersecurity threats that could result in the unauthorized disclosure of confidential information, disruption of our operations, damage to our reputation, or financial loss.
+
+        • Regulatory Changes: Changes in laws and regulations, particularly those related to data privacy, antitrust, and international trade, could adversely affect our business operations and financial performance.
+
+        • Talent Retention: Our success depends on our ability to attract, retain, and motivate qualified personnel. Competition for skilled employees in the technology sector is intense.
+    assert:
+      - type: contains
+        value: Market Competition
+      - type: contains
+        value: Supply Chain Disruptions
+      - type: contains
+        value: Competition
+
+# Output configuration
+outputPath: ./output/results.json
+
+# Sharing configuration for Cake's Promptfoo server
+sharing:
+  apiBaseUrl: https://promptfoo.dev.aws.kflow.ai
+  appBaseUrl: https://promptfoo.dev.aws.kflow.ai
